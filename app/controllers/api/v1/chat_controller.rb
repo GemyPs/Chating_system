@@ -15,7 +15,7 @@ module Api
           end
           chat_record.name = params[:name]
           if chat_record.save
-            render json: { status: true, message: 'The chat Updated!', data: { name: params[:name], chat_number: chat_record.chat_number } }
+            render json: { status: true, message: 'The chat Updated!', data: { name: params[:name], chat_number: chat_record.chat_number, created_at: chat_record.created_at, updated_at: chat_record.updated_at } }
           else
             render json: { status: false, message: 'There is an error while updating the chat' }
           end
@@ -33,7 +33,7 @@ module Api
             status: true,
             message: 'The chats of the application',
             data: {
-              chats: application_chats.map { |chat| { name: chat.name, chat_number: chat.chat_number, messages_count: chat.messages_count } }
+              chats: application_chats.map { |chat| { name: chat.name, chat_number: chat.chat_number, messages_count: chat.messages_count, created_at: chat.created_at, updated_at: chat.updated_at } }
             }
           }
         end
@@ -60,7 +60,9 @@ module Api
                 chat: {
                   name: chat.name,
                   chat_number: chat.chat_number,
-                  message_count: chat.messages_count
+                  message_count: chat.messages_count,
+                  created_at: chat.created_at,
+                  updated_at: chat.updated_at
                 }
               }
             }

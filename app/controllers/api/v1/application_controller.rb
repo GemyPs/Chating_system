@@ -9,7 +9,7 @@ module Api
                   status: true,
                   message:'The Applications Fetched!',
                   data:{
-                    applications:applications.map{|application| {name:application.name,token:application.token,chats_count:application.chats_count}}
+                    applications:applications.map{|application| {name:application.name,token:application.token,chats_count:application.chats_count, created_at: application.created_at, updated_at: application.updated_at}}
                   }
                 }
             end
@@ -27,7 +27,9 @@ module Api
                       data:{
                         name:params[:name],
                         token:params[:application_token],
-                        chats_count:application.chats_count
+                        chats_count:application.chats_count,
+                        created_at: application.created_at,
+                        updated_at: application.updated_at,
                       }
                     }
                 else
@@ -48,7 +50,7 @@ module Api
                   status: true,
                   message:'The Application has been fetched!',
                   data:{
-                    application: {name:application.name,token:application.token,chats_count:application.chats_count}
+                    application: {name:application.name,token:application.token,chats_count:application.chats_count, created_at: application.created_at, updated_at: application.updated_at}
                   }
                 }
             end
@@ -58,7 +60,7 @@ module Api
                 application = Application.new(object_to_add)
         
                 if application.save
-                    render json:{status: true, message:'The Applications Added!', data:{application:{name:application.name,token:application.token}}}
+                    render json:{status: true, message:'The Applications Added!', data:{application:{name:application.name,token:application.token, created_at: application.created_at, updated_at: application.updated_at}}}
                 else
                     render json:{status: false, message:'There is an error while adding the application', data:{errors:application.errors}}
                 end
