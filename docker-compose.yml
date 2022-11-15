@@ -1,0 +1,84 @@
+version: "3.7"
+
+services:
+  db:
+    container_name: db
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    volumes:
+      - ./docker_data/db:/var/lib/mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: servroot@secret
+    networks:
+      - app-network
+  rails:
+    container_name: rails
+    build: .
+    environment:
+      DB_HOST: db
+      DB_USERNAME: root
+      DB_PASSWORD: servroot@secret
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - db
+    networks:
+        - app-network
+    ports:
+        - 3000:3000
+    volumes:
+        - ./:/app
+
+  queue:
+    container_name: queue
+    build: .
+    command: bundle exec sidekiq
+    depends_on:
+      - redis
+    environment:
+      DB_HOST: db
+      DB_USERNAME: root
+      DB_PASSWORD: servroot@secret
+      REDIS_URL: redis://redis:6379
+    networks:
+      - app-network
+    volumes:
+      - ./:/app
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.13
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - app-network
+    volumes:
+        - type: bind
+          source: ./docker_data/elasticsearch
+          target: /usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - app-network
+    volumes:
+        - ./docker_data/redis:/data
+
+networks:
+    app-network:
+
